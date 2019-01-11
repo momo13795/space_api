@@ -23,9 +23,9 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// $app->withFacades();
+ $app->withFacades();
 
-// $app->withEloquent();
+ $app->withEloquent();
 
 /*
 |--------------------------------------------------------------------------
@@ -37,6 +37,12 @@ $app = new Laravel\Lumen\Application(
 | your own bindings here if you like or you can make another file.
 |
 */
+
+//引入config
+$app->configure('dingo');
+//$app->configure('jwt');
+$app->configure('auth');
+
 
 $app->singleton(
     Illuminate\Contracts\Debug\ExceptionHandler::class,
@@ -63,9 +69,10 @@ $app->singleton(
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
 
-// $app->routeMiddleware([
+ $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
-// ]);
+     'refresh' => App\Http\Middleware\RefreshToken::class,
+ ]);
 
 /*
 |--------------------------------------------------------------------------
@@ -78,9 +85,36 @@ $app->singleton(
 |
 */
 
-// $app->register(App\Providers\AppServiceProvider::class);
+ $app->register(App\Providers\AppServiceProvider::class);
 // $app->register(App\Providers\AuthServiceProvider::class);
-// $app->register(App\Providers\EventServiceProvider::class);
+ $app->register(App\Providers\EventServiceProvider::class);
+
+$app->register(Dingo\Api\Provider\LumenServiceProvider::class);//注册dingo 服务
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);//注册jwt 服务
+
+
+//app('Dingo\Api\Exception\Handler')->register(function (Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $exception) {
+////   return  response()->json(['error' => '90900'],403);
+//        dd($exception);
+//    if ($exception instanceof UnauthorizedHttpException) {
+//
+//        // detect previous instance
+//        if ($exception->getPrevious() instanceof TokenExpiredException) {
+//            return response()->json(['error' => 'TOKEN_EXPIRED'], $exception->getStatusCode());
+//        } else if ($exception->getPrevious() instanceof TokenInvalidException) {
+//            return response()->json(['error' => 'TOKEN_INVALID'], $exception->getStatusCode());
+//        } else if ($exception->getPrevious() instanceof TokenBlacklistedException) {
+//            return response()->json(['error' => 'TOKEN_BLACKLISTED'], $exception->getStatusCode());
+//        } else {
+//            return response()->json(['error' => "UNAUTHORIZED_REQUEST"], 401);
+//        }
+//    }
+//
+//    return  response()->json(['error' => '90901'],403);
+//
+//
+//
+//});
 
 /*
 |--------------------------------------------------------------------------
@@ -97,6 +131,7 @@ $app->router->group([
     'namespace' => 'App\Http\Controllers',
 ], function ($router) {
     require __DIR__.'/../routes/web.php';
+    require __DIR__.'/../routes/api.php';
 });
 
 return $app;
