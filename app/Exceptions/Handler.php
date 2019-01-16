@@ -51,21 +51,6 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
-
-        dd($exception->getPrevious());
-        // detect instance
-        if ($exception instanceof UnauthorizedHttpException) {
-            // detect previous instance
-            if ($exception->getPrevious() instanceof TokenExpiredException) {
-                return response()->json(['error' => 'TOKEN_EXPIRED'], $exception->getStatusCode());
-            } else if ($exception->getPrevious() instanceof TokenInvalidException) {
-                return response()->json(['error' => 'TOKEN_INVALID'], $exception->getStatusCode());
-            } else if ($exception->getPrevious() instanceof TokenBlacklistedException) {
-                return response()->json(['error' => 'TOKEN_BLACKLISTED'], $exception->getStatusCode());
-            } else {
-                return response()->json(['error' => "UNAUTHORIZED_REQUEST"], 401);
-            }
-        }
         return parent::render($request, $exception);
     }
 }

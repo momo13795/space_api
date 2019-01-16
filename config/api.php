@@ -80,6 +80,10 @@ return [
     | When documenting your API using the API Blueprint syntax you can
     | configure a default name to avoid having to manually specify
     | one when using the command.
+
+    接口的名称，用于生成api文档，其他地方不使用
+
+
     |
     */
 
@@ -107,7 +111,10 @@ return [
     | Enabling strict mode will require clients to send a valid Accept header
     | with every request. This also voids the default API version, meaning
     | your API will not be browsable via a web browser.
-    |
+
+
+    |强制每次请求必须带版本，既格式为：
+    |Accept:application/vnd.{API_SUBTYPE}.v2+json
     */
 
     'strict' => env('API_STRICT', false),
@@ -231,5 +238,22 @@ return [
         ],
 
     ],
+    /*
+    |--------------------------------------------------------------------------
+    | 接口频率限制
+    |--------------------------------------------------------------------------
+    |
+    |
+    |
+    */
+        'rate_limits' => [
+            // 登录相关，次数/分钟
+            'sign' => [
+                'expires' => env('SIGN_RATE_LIMITS_EXPIRES', 1),
+                'limit'  => env('SIGN_RATE_LIMITS', 10),
+            ],
+        ],
+
+
 
 ];

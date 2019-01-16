@@ -10,19 +10,12 @@ namespace App\Http\Controllers\Auth;
 
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Tymon\JWTAuth\Facades\JWTAuth;
-use Tymon\JWTAuth\Exceptions\TokenExpiredException;
-use Tymon\JWTAuth\Exceptions\TokenInvalidException;
-use Tymon\JWTAuth\Exceptions\TokenBlacklistedException;
 use Tymon\JWTAuth\Exceptions\JWTException;
-
 use Dingo\Api\Routing\Helpers;
 
 use Laravel\Lumen\Routing\Controller as BaseController;
-use Illuminate\Support\Facades\Auth;
 
-use Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException;
 
 
 
@@ -35,7 +28,7 @@ class AuthController extends BaseController
     public function __construct(Request $request,JWTAuth $jwt)
     {
         $this->request = $request;
-        $this->middleware('refresh', ['except' => ['login']]);
+        $this->middleware('jwt.auth', ['except' => ['login','refresh','register']]);
     }
 
 
@@ -49,7 +42,6 @@ class AuthController extends BaseController
 
         //获取指定字段
         $account_field = $this->request->only('email','password');
-
 
         try {
             //调用auth 中的api
@@ -70,21 +62,54 @@ class AuthController extends BaseController
     }
 
 
+    public function register()
+    {
+        $this->validate($this->request, [
+            'email'     => 'required',
+            'password'  => 'min:6|max:20',
+            'equipment_number' => 'required',
+            'displayname' => 'required|min:3|max:30',
+            'nickname'     => 'required',
+        ]);
+    }
+
+
+
+
+
     public function me()
     {
-
-
-        try {
-
-        } catch (JWTException $exception) {
-            dd(333);
-            return $this->response->array(['status' => 400,'msg' => '账号或密码不对'])->setStatusCode(400);
-
-        }
-        throw new UnauthorizedHttpException('777', '999');
-
         return response()->json(JWTAuth::parseToken()->touser());
     }
+
+
+    /**
+     * 退出删除token
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout()
+    {
+        JWTAuth::parseToken()->invalidate();
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+
+    /**
+     *
+     * 刷新token,刷新一次上个token将会失效
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh()
+    {
+        $token = JWTAuth::parseToken()->refresh();
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60
+        ]);
+    }
+
 
 
 }

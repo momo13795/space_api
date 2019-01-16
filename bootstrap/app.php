@@ -39,9 +39,9 @@ $app = new Laravel\Lumen\Application(
 */
 
 //引入config
-$app->configure('dingo');
-//$app->configure('jwt');
-$app->configure('auth');
+$app->configure('api');
+$app->configure('jwt');
+//$app->configure('auth');
 
 
 $app->singleton(
@@ -93,28 +93,26 @@ $app->register(Dingo\Api\Provider\LumenServiceProvider::class);//注册dingo 服
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);//注册jwt 服务
 
 
-//app('Dingo\Api\Exception\Handler')->register(function (Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $exception) {
-////   return  response()->json(['error' => '90900'],403);
-//        dd($exception);
-//    if ($exception instanceof UnauthorizedHttpException) {
+
+/*
+|--------------------------------------------------------------------------
+| 为门面设置别名
+|--------------------------------------------------------------------------
+|
+*/
+if (!class_exists('JWTAuth')) {
+    class_alias('Tymon\JWTAuth\Facades\JWTAuth', 'JWTAuth');
+}
+
+if (!class_exists('API')) {
+    class_alias('Dingo\Api\Facade\API', 'API');
+}
 //
-//        // detect previous instance
-//        if ($exception->getPrevious() instanceof TokenExpiredException) {
-//            return response()->json(['error' => 'TOKEN_EXPIRED'], $exception->getStatusCode());
-//        } else if ($exception->getPrevious() instanceof TokenInvalidException) {
-//            return response()->json(['error' => 'TOKEN_INVALID'], $exception->getStatusCode());
-//        } else if ($exception->getPrevious() instanceof TokenBlacklistedException) {
-//            return response()->json(['error' => 'TOKEN_BLACKLISTED'], $exception->getStatusCode());
-//        } else {
-//            return response()->json(['error' => "UNAUTHORIZED_REQUEST"], 401);
-//        }
-//    }
-//
-//    return  response()->json(['error' => '90901'],403);
-//
-//
-//
-//});
+if (!class_exists('Route')) {
+    class_alias('Dingo\Api\Facade\Route', 'ApiRoute');
+}
+
+
 
 /*
 |--------------------------------------------------------------------------
